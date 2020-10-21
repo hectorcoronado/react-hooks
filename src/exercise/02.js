@@ -1,20 +1,45 @@
 // useEffect: persistent state
 // http://localhost:3000/isolated/exercise/02.js
 
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 
-function Greeting({initialName = ''}) {
-  // 🐨 initialize the state to the value from localStorage
-  // 💰 window.localStorage.getItem('name') || initialName
-  const [name, setName] = React.useState(initialName)
+const useLocalStorage = (key, initialValue) => {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key)
+      return item ? JSON.parse(item) : initialValue
+    } catch (err) {
+      console.warn('Error setting localStorage:', err)
+      return initialValue
+    }
+  })
 
-  // 🐨 Here's where you'll use `React.useEffect`.
-  // The callback should set the `name` in localStorage.
-  // 💰 window.localStorage.setItem('name', name)
+  const setValue = value => {
+    try {
+      const valueToStore = 
+        value instanceof Function
+          ? value(storedValue)
+          : value
+      setStoredValue(valueToStore)
+      window.localStorage.setItem(key, JSON.stringify(valueToStore))
+    } catch (err) {
+      console.error(err)
+    }
+  }
+  return [storedValue, setValue]
+}
 
-  function handleChange(event) {
+const Greeting = ({initialName = ''}) => {
+  const [name, setName] = useLocalStorage('name', initialName)
+
+  useEffect(() => {
+    setName(name)
+  }, [name, setName])
+
+  const handleChange = (event) => {
     setName(event.target.value)
   }
+
   return (
     <div>
       <form>
@@ -26,7 +51,7 @@ function Greeting({initialName = ''}) {
   )
 }
 
-function App() {
+const App = () => {
   return <Greeting />
 }
 

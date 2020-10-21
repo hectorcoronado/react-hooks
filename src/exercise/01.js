@@ -3,16 +3,11 @@
 
 import React, {useState} from 'react'
 
-function Greeting(props) {
-  console.log('props', props)
+const Greeting = (props) => {
   const initialName = props.initialName || 'Brenda B.'
-
-  console.log('initialName', initialName)
   const [name, setName] = useState(initialName)
   function handleChange(e) {
-    // 🐨 update the name here based on event.target.value
     let name = e.target.value
-
     setName(name)
   }
 
@@ -27,9 +22,8 @@ function Greeting(props) {
   )
 }
 
-function App() {
+const App = () => {
   const initialName = 'Hector C.'
-
   return <Greeting initialName={initialName} />
 }
 

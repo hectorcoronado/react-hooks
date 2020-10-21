@@ -1,21 +1,26 @@
 // useState: greeting
 // http://localhost:3000/isolated/exercise/01.js
 
-import React from 'react'
+import React, {useState} from 'react'
 
-function Greeting() {
-  // 💣 delete this variable declaration and replace it with a React.useState call
-  const name = ''
+function Greeting(props) {
+  console.log('props', props)
+  const initialName = props.initialName || 'Brenda B.'
 
-  function handleChange(event) {
+  console.log('initialName', initialName)
+  const [name, setName] = useState(initialName)
+  function handleChange(e) {
     // 🐨 update the name here based on event.target.value
+    let name = e.target.value
+
+    setName(name)
   }
 
   return (
     <div>
       <form>
         <label htmlFor="name">Name: </label>
-        <input onChange={handleChange} id="name" />
+        <input onChange={handleChange} id="name" defaultValue={initialName} />
       </form>
       {name ? <strong>Hello {name}</strong> : 'Please type your name'}
     </div>
@@ -23,7 +28,9 @@ function Greeting() {
 }
 
 function App() {
-  return <Greeting />
+  const initialName = 'Hector C.'
+
+  return <Greeting initialName={initialName} />
 }
 
 export default App

@@ -1,55 +1,47 @@
 // useState: tic tac toe
 // http://localhost:3000/isolated/exercise/04.js
 
-import React from 'react'
+import React, {useState} from 'react'
 
-function Board() {
-  // 🐨 squares is the state for this component. Add useState for squares
-  const squares = Array(9).fill(null)
+const Board = () => {
+  const initialSquares = Array(9).fill(null)
+  const [squares, setSquares] = useState(initialSquares)
+  const [nextValue, setNextValue] = useState('X')
+  const [winner, setWinner] = useState(null)
+  const [status, setStatus] = useState(`Next player: ${nextValue}`)
 
-  // 🐨 We'll need the following bits of derived state:
-  // - nextValue ('X' or 'O')
-  // - winner ('X', 'O', or null)
-  // - status (`Winner: ${winner}`, `Scratch: Cat's game`, or `Next player: ${nextValue}`)
-  // 💰 I've written the calculations for you! So you can use my utilities
-  // below to create these variables
+  const selectSquare = square => {
+    if ((squares[square] !== null) || winner) return
 
-  // This is the function your square click handler will call. `square` should
-  // be an index. So if they click the center square, this will be `4`.
-  function selectSquare(square) {
-    // 🐨 first, if there's already winner or there's already a value at the
-    // given square index (like someone clicked a square that's already been
-    // clicked), then return early so we don't make any state changes
-    //
-    // 🦉 It's typically a bad idea to mutate or directly change state in React.
-    // Doing so can lead to subtle bugs that can easily slip into production.
-    //
-    // 🐨 make a copy of the squares array 
-    // 💰 `[...squares]` will do it!)
-    //
-    // 🐨 set the value of the square that was selected
-    // 💰 `squaresCopy[square] = nextValue`
-    //
-    // 🐨 set the squares to your copy
+    // make copy of squares and fill square w/player that clicked:
+    const squaresCopy = [...squares]
+    squaresCopy[square] = nextValue
+    
+    const nextVal = calculateNextValue(squaresCopy)
+    const winningPlayer = calculateWinner(squaresCopy)
+
+    setSquares(squaresCopy)
+    setNextValue(nextVal)
+    setWinner(calculateWinner(squaresCopy))
+    setStatus(calculateStatus(winningPlayer, squaresCopy, nextVal))
   }
 
-  function restart() {
-    // 🐨 reset the squares
-    // 💰 `Array(9).fill(null)` will do it!
+  const restart = () => {
+    setSquares(initialSquares)
+    setWinner(null)
+    setNextValue('X')
+    setStatus('Next player: X')
   }
 
-  function renderSquare(i) {
-    return (
-      <button className="square" onClick={() => selectSquare(i)}>
-        {squares[i]}
-      </button>
-    )
-  }
+  const renderSquare = i => (
+    <button className="square" onClick={() => selectSquare(i)}>
+      {squares[i]}
+    </button>
+  )
 
   return (
     <div>
-      {/* 🐨 put the status in the div below */}
-      <div className="status">STATUS</div>
+      <div className="status">{status}</div>
       <div className="board-row">
         {renderSquare(0)}
         {renderSquare(1)}
@@ -72,18 +64,16 @@ function Board() {
   )
 }
 
-function Game() {
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board />
-      </div>
+const Game = () => (
+  <div className="game">
+    <div className="game-board">
+      <Board />
     </div>
-  )
-}
+  </div>
+)
 
 // eslint-disable-next-line no-unused-vars
-function calculateStatus(winner, squares, nextValue) {
+const calculateStatus = (winner, squares, nextValue) => {
   return winner
     ? `Winner: ${winner}`
     : squares.every(Boolean)
@@ -92,14 +82,14 @@ function calculateStatus(winner, squares, nextValue) {
 }
 
 // eslint-disable-next-line no-unused-vars
-function calculateNextValue(squares) {
+const calculateNextValue = squares => {
   const xSquaresCount = squares.filter(r => r === 'X').length
   const oSquaresCount = squares.filter(r => r === 'O').length
   return oSquaresCount === xSquaresCount ? 'X' : 'O'
 }
 
 // eslint-disable-next-line no-unused-vars
-function calculateWinner(squares) {
+const calculateWinner = squares => {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -119,8 +109,6 @@ function calculateWinner(squares) {
   return null
 }
 
-function App() {
-  return <Game />
-}
+const App = () => <Game />
 
 export default App

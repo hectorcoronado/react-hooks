@@ -1,26 +1,29 @@
 // useState: tic tac toe
 // http://localhost:3000/isolated/exercise/04.js
 
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 
 const Board = () => {
-  const storedState =  JSON.parse(localStorage.getItem('ticTacToeState'))
-  console.log('storedState:', storedState)
   const initialSquares = Array(9).fill(null)
-  console.log('initialSquares', initialSquares)
-  const [squares, setSquares] = useState(() => storedState !== null ? storedState.squares : initialSquares)
-  const [nextValue, setNextValue] = useState(storedState !== null ? storedState.nextValue : 'X')
-  const [winner, setWinner] = useState(storedState !== null ? storedState.winner : null)
-  const [status, setStatus] = useState(storedState !== null ? storedState.status : `Next player: ${nextValue}`)
-  const [gameState, setGameState] = useState({
-    squares,
-    nextValue,
-    winner,
-    status
-  })
+  const [squares, setSquares] = useState(initialSquares)
+  const [nextValue, setNextValue] = useState('X')
+  const [winner, setWinner] = useState(null)
+  const [status, setStatus] = useState(`Next player: ${nextValue}`)
+  let storedState =  JSON.parse(localStorage.getItem('ticTacToeState')) || null
+
+  useEffect(() => {
+    if (storedState === null) {
+      return
+    } else {
+      let gameState = JSON.parse(storedState)
+      setSquares(gameState.squares)
+      setNextValue(gameState.nextValue)
+      setWinner(gameState.winner)
+      setStatus(gameState.status)
+    }
+  }, [])
 
   const selectSquare = square => {
-    console.log('squares[square]', squares[square])
     if ((squares[square] !== null) || winner) return
 
     // make copy of squares and fill square w/player that clicked:
@@ -30,12 +33,12 @@ const Board = () => {
     const nextVal = calculateNextValue(squaresCopy)
     const winningPlayer = calculateWinner(squaresCopy)
     const gameStatus = calculateStatus(winningPlayer, squaresCopy, nextVal)
-    const gameStateToStore = {
+    const gameStateToStore = JSON.stringify({
       squares: squaresCopy,
       nextValue: nextVal,
       winner: winningPlayer,
       status: gameStatus
-    }
+    })
 
     setSquares(squaresCopy)
     setNextValue(nextVal)
@@ -43,10 +46,8 @@ const Board = () => {
     setStatus(gameStatus)
     
     if (storedState === null) {
-      console.log('if condition')
-      localStorage.setItem('ticTacToeState', JSON.stringify(gameStateToStore))
+      localStorage.setItem('ticTacToeState', gameStateToStore)
     } else {
-      console.log('else condition')
       localStorage.removeItem('ticTacToeState')
       localStorage.setItem('ticTacToeState', JSON.stringify(gameStateToStore))
     }

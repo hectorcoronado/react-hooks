@@ -2,6 +2,7 @@
 // http://localhost:3000/isolated/exercise/04.js
 
 import React, {useEffect, useState} from 'react'
+import {useLocalStorageState} from '../utils'
 
 const Board = () => {
   const initialSquares = Array(9).fill(null)
@@ -9,13 +10,12 @@ const Board = () => {
   const [nextValue, setNextValue] = useState('X')
   const [winner, setWinner] = useState(null)
   const [status, setStatus] = useState(`Next player: ${nextValue}`)
-  let storedState =  JSON.parse(localStorage.getItem('ticTacToeState')) || null
+  const [gameState, setGameState] = useLocalStorageState('ticTacToeState', null)
 
   useEffect(() => {
-    if (storedState === null) {
+    if (gameState === null) {
       return
     } else {
-      let gameState = JSON.parse(storedState)
       setSquares(gameState.squares)
       setNextValue(gameState.nextValue)
       setWinner(gameState.winner)
@@ -33,28 +33,22 @@ const Board = () => {
     const nextVal = calculateNextValue(squaresCopy)
     const winningPlayer = calculateWinner(squaresCopy)
     const gameStatus = calculateStatus(winningPlayer, squaresCopy, nextVal)
-    const gameStateToStore = JSON.stringify({
+    const gameStateToStore = {
       squares: squaresCopy,
       nextValue: nextVal,
       winner: winningPlayer,
       status: gameStatus
-    })
+    }
 
     setSquares(squaresCopy)
     setNextValue(nextVal)
     setWinner(winningPlayer)
     setStatus(gameStatus)
-    
-    if (storedState === null) {
-      localStorage.setItem('ticTacToeState', gameStateToStore)
-    } else {
-      localStorage.removeItem('ticTacToeState')
-      localStorage.setItem('ticTacToeState', JSON.stringify(gameStateToStore))
-    }
+    setGameState(gameStateToStore)
   }
 
   const restart = () => {
-    localStorage.removeItem('ticTacToeState')
+    setGameState(null)
     setSquares(initialSquares)
     setWinner(null)
     setNextValue('X')

@@ -4,13 +4,47 @@
 import React, {useEffect, useState} from 'react'
 import {useLocalStorageState} from '../utils'
 
-const Board = () => {
+const Board = ({selectSquare, squares}) => {
+  const renderSquare = i => (
+    <button className="square" onClick={() => selectSquare(i)}>
+      {squares[i]}
+    </button>
+  )
+
+  return (
+    <div>
+      {/* <div className="status">{status}</div> */}
+      <div className="board-row">
+        {renderSquare(0)}
+        {renderSquare(1)}
+        {renderSquare(2)}
+      </div>
+      <div className="board-row">
+        {renderSquare(3)}
+        {renderSquare(4)}
+        {renderSquare(5)}
+      </div>
+      <div className="board-row">
+        {renderSquare(6)}
+        {renderSquare(7)}
+        {renderSquare(8)}
+      </div>
+      {/* <button className="restart" onClick={restart}>
+        restart
+      </button> */}
+    </div>
+  )
+}
+
+const Game = () => {
   const initialSquares = Array(9).fill(null)
   const [squares, setSquares] = useState(initialSquares)
   const [nextValue, setNextValue] = useState('X')
   const [winner, setWinner] = useState(null)
   const [status, setStatus] = useState(`Next player: ${nextValue}`)
   const [gameState, setGameState] = useLocalStorageState('ticTacToeState', null)
+  const [history, setHistory] = useState([])
+  const [currentStep, setCurrentStep] = useState(0)
 
   useEffect(() => {
     if (gameState === null) {
@@ -55,44 +89,28 @@ const Board = () => {
     setStatus('Next player: X')
   }
 
-  const renderSquare = i => (
-    <button className="square" onClick={() => selectSquare(i)}>
-      {squares[i]}
-    </button>
-  )
+  const moves = history => history.map((stepSquares, step) => {
+    if (step === 0) {
+      return <li>{`Go to game start`}</li>
+    }
+  })
+
+  const goToStep = e => console.log('e.target', e.target)
 
   return (
-    <div>
-      <div className="status">{status}</div>
-      <div className="board-row">
-        {renderSquare(0)}
-        {renderSquare(1)}
-        {renderSquare(2)}
-      </div>
-      <div className="board-row">
-        {renderSquare(3)}
-        {renderSquare(4)}
-        {renderSquare(5)}
-      </div>
-      <div className="board-row">
-        {renderSquare(6)}
-        {renderSquare(7)}
-        {renderSquare(8)}
-      </div>
+    <div className="game">
+    <div className="game-board">
+      <Board onClick={selectSquare} squares={squares} />
       <button className="restart" onClick={restart}>
         restart
       </button>
     </div>
-  )
-}
-
-const Game = () => (
-  <div className="game">
-    <div className="game-board">
-      <Board />
+    <div className="game-info" onClick={goToStep}>
+      <div>{status}</div>
+      {/* <ol>{moves}</ol> */}
     </div>
   </div>
-)
+)}
 
 // eslint-disable-next-line no-unused-vars
 const calculateStatus = (winner, squares, nextValue) => {
